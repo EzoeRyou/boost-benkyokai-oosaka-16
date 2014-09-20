@@ -720,7 +720,8 @@ concept bool f() { ... }
 <p>
 論理演算子の左右オペランドの式の型もbool
 </p>
-<pre><code class="cpp">1 + 1 ; // 型はint、制約式ではない
+<pre><code class="cpp">1 + 1 ; // bool型ではないので制約式ではない
+true || 1 ; // 論理和のオペランドがbool型ではない
 </code></pre>
 </section>
 
