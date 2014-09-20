@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>帰ってきたコンセプト</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+<div class="reveal">
+
+<!-- Any section element inside of this container is displayed as a slide -->
+<div class="slides">
+
+<section>
+<h1>帰ってきた</h1>
+<h1>コンセプト</h1>
+</section>
+
+<section>
+<h2>自己紹介</h2>
+
+<h2>
+江添亮
+</h2>
+
+<p>
+ドワンゴ社員
+</p>
+
+<p>
+情報規格調査会 CS22/WG21 C++小委員会<br>
+エキスパートメンバー(2015年3月末まで)
+</p>
+
+</section>
+
+<section>
+<h2>Conceptとは</h2>
+
+<del>岡山の陶芸家を用なしにする機能</del>
+</section>
+
+<section>
+<h2>Conceptとは</h2>
+
+<del>でちまるさんの兄にとどめを刺す機能</del>
+
+</section>
+
+
+<section>
+<h2>Conceptとは</h2>
+
+<p>
+C++11に入る予定だった機能
+</p>
+
+<p>
+コンセプト、コンセプトマップ、axiom
+</p>
+</section>
+
+<section>
+<h2>C++0xコンセプト</h2>
+
+<p>
+テンプレート仮引数に意味を与える
+</p>
+
+<pre><code class="cpp">concept Cat&lt;T&gt; { } ;
+
+class Mike { } ; // 猫
+class Linda_pp { } ; // 犬
+
+// ミケは猫
+concept_map Cat&lt;Mike&gt; { } ;
+// エサを与える
+template &lt; Cat cat &gt; void feed_cat( cat c ) ;
+
+feed_cat( Mike{ } ) ; // OK、Mikeは猫なのでエサをあげる
+feed_cat( Linda_pp{ } ) ; // エラー、Linda_ppは猫ではない
+</code></pre>
+</section>
+
+<section>
+<h2>C++0xコンセプト</h2>
+
+<p>
+型に制約を与える
+</p>
+
+<pre><code class="cpp">auto concept pointer_like&lt;T&gt; 
+{
+    typename value_type ;
+    value_type &amp; operator *() ;
+}
+
+// ネストされた型名value_type
+// value_type &amp;を返すoperator *()
+// を持つ型に対してのみ有効
+template &lt; pointer_like T &gt;
+struct X { } ;
+</code></pre>
+
+</section>
+
+<section>
+<h2>C++0xコンセプトマップ</h2>
+
+<p>
+型を制約にマッピングする
+</p>
+
+<pre><code class="cpp">// 生ポインターにはネストされた型名がないのでマッピング
+template &lt; typename T &gt;
+concept_map pointer_like&lt;T *&gt;
+{
+    typedef T value_type ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>C++0xコンセプトマップ</h2>
+
+<p>
+型を制約にマッピングする
+</p>
+
+<pre><code class="cpp">// 既存の別のコーディングスタイルの型をマッピング
+struct Hoge_ptr
+{
+    typedef int type ;
+    type &amp; get() ;
+} ;
+
+concept_map pointer_like&lt; Hoge_ptr &gt;
+{
+    typedef Hoge_ptr::type value_type ;
+    value_type &amp; operator *( Hoge_ptr &amp; hoge )
+    {
+        return hoge.get() ;
+    }
+}
+</code></pre>
+</section>
+
+<section>
+<h2>C++0xのAxiom</h2>
+
+<h1>
+謎の機能
+</h1>
+</section>
+
+<section>
+<h2>コンセプト否決</h2>
+
+<p>
+2009年7月13-18日のフランクフルト会議で、否決
+</p>
+
+<p>
+理由
+</p>
+
+<p>
+コンセプトマップは暗黙的に生成されるべきかどうか
+</p>
+</section>
+
+<section>
+<h2>コンセプトマップの生成</h2>
+
+<p>
+コンセプトは、たまたま制約が一致するだけでは使えない。
+</p>
+
+<pre><code class="cpp">concept has_value_type&lt;T&gt;
+{
+    typename value_type ;
+}
+
+struct X { using value_type = int ; } ;
+
+template &lt; has_value_type T &gt; struct Y { } ;
+
+X&lt;T&gt; x ; // エラー
+</code></pre>
+</section>
+
+<section>
+<h2>コンセプトマップの生成</h2>
+
+<p>
+型をコンセプトに対応させるには
+</p>
+
+<p>
+明示的にコンセプトマップを書かなければならない
+</p>
+
+<p>
+たとえ、何もマッピングする必要がなかったとしても
+</p>
+
+<pre><code class="cpp">// コンセプトマップの生成
+concept_map has_value_type&lt;X&gt;
+{ /* 別に中身は必要ない */ } ;
+</code></pre>
+</section>
+
+<section>
+<h2>暗黙的なコンセプトマップ生成の暗黙派</h2>
+
+<p>
+空っぽのコンセプトマップを
+</p>
+
+<p>
+何故わざわざ手書きしなければならないのだ
+</p>
+
+<p>
+コンセプトマップは常に暗黙に生成されるべきだ
+</p>
+</section>
+
+<section>
+<h2>明示的なコンセプトマップ原理主義者</h2>
+
+<p>
+単なるシグネチャの一致とコンセプトの合致するかどうかは別物だ
+</p>
+
+<p>
+コンセプトマップは手で書くべきだ
+</p>
+
+<p>
+たとえ中身が空っぽだったとしてもだ
+</p>
+</section>
+
+<section>
+<h2>中道派</h2>
+
+<p>
+暗黙に生成させる文法を用意すればええんちゃう？
+</p>
+
+<pre><code class="cpp">// 明示的なコンセプトマップが必要
+concept X&lt;T&gt; { }
+X&lt;int&gt; x ; // エラー
+        
+// 暗黙的にコンセプトマップを生成
+auto concept Y&lt;T&gt; { }
+Y&lt;int&gt; y ; // OK
+</code></pre>
+
+
+</section>
+
+<section>
+<h2>論争</h2>
+
+<p>
+原理主義者「絶対に手で書け。暗黙は認めん」
+</p>
+
+<p>
+暗黙派「空っぽの冗長な記述など文法上のノイズだ」
+</p>
+
+<p>
+中道派「どっちかデフォルトにしとけばええんちゃう？」
+</p>
+</section>
+
+<section>
+<h1>よろしい、ならば投票だ！</h1>
+</section>
+
+<section>
+<h2>投票結果</h2>
+
+<p>
+コンセプト否決
+</p>
+
+<p>
+ドラフトから除去
+</p>
+
+<p>
+range-based forが割りを食う
+</p>
+
+<p>
+C++11規格制定が一年半も延期
+</p>
+</section>
+
+<section>
+<h1>という</h1>
+<h1>お話</h1>
+<h1>だったのさ</h1>
+</section>
+
+<section>
+<h2>軽量コンセプト</h2>
+
+<p>
+ちょっと風呂敷広げすぎたから
+</p>
+
+<p>
+今度は身の丈に合わせて設計するわ
+</p>
+</section>
+
+<section>
+<h2>参考資料</h2>
+
+<p>
+Concept TSドラフト
+</p>
+
+<p>
+11月に書き直しになるので注意
+</p>
+
+<p>
+<a href="https://github.com/cplusplus/concepts-ts">https://github.com/cplusplus/concepts-ts</a>
+</p>
+</section>
+
+<section>
+<h2>軽量コンセプト</h2>
+
+<p>
+関数型の制約チェックに特化
+</p>
+
+<p>
+既存のメタプログラミング技法の延長で設計
+</p>
+</section>
+
+<section>
+<h2>呼び出し側の型制約チェック</h2>
+
+<p>
+テンプレート実引数が、期待する制約を満たさない場合
+</p>
+
+<p>
+極めて読みにくいエラーメッセージが出力される
+</p>
+
+<p>
+テンプレートコードの奥深くでエラーになるので読みづらい
+</p>
+
+<p>
+制約を記述して、制約を満たすかどうかをチェックできるようにする
+</p>
+</section>
+
+<section>
+<h2>呼び出し型の型制約チェック</h2>
+
+<p>
+テンプレートが想定する型制約を呼び出し側が満たせない場合
+</p>
+
+<p>
+わかりにくいエラーメッセージとなる。
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+void f( )
+{
+    T t1 ; // Tにはデフォルトコンストラクターが必要
+    T t2 = t1 ; // Tにはコピーコンストラクターが必要
+
+    // Tにはデストラクターが必要
+}
+</code></pre>
+</section>
+
+<section>
+
+<p>
+現実のコードでは
+</p>
+
+<p>
+テンプレートfはユーザーが直接呼び出すものではなく
+</p>
+
+<p>
+コードの奥底深くに潜んでいる。
+</p>
+
+<p>
+コンパイラー
+</p>
+
+<p>
+「foo::bar::detail::f_impl&lt;T, U&gt;でT=hoge, U=some_poilcy&lt;T&gt;のときなんたらかんたら」
+</p>
+</section>
+
+<section>
+<h1>わからへん</h1>
+</section>
+
+<section>
+<h1>解読には</h1>
+<h1>岡山の陶芸家</h1>
+<h1>が</h1>
+<h1>必要やろ</h1>
+</section>
+
+<section>
+<h2>コンセプトで解決</h2>
+
+<p>
+ろくろを回さなくてええねんで
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool JustWorkConcept =
+    std::is_default_constructible_v&lt;T&gt; &amp;&amp;
+    std::is_copy_constructible_v&lt;T&gt; &amp;&amp;
+    std::is_destructible_v&lt;T&gt; ;
+
+template &lt; JustWorkConcept T &gt;
+void f()
+{
+    T t1 ;
+    T t2 = t1 ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>型制約を満たさない場合</h2>
+
+<p>
+コンパイラー
+</p>
+
+<p>
+「JustWorkConceptを満たしてへんで」
+</p>
+</section>
+
+<section>
+<h1>
+わかりやすい
+</h1>
+
+</section>
+
+<section>
+<h2>型制約によるコンパイル時分岐</h2>
+
+<p>
+符号の有無で処理を変えたい
+</p>
+
+<p>
+従来のSFINAEを使うやり方
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+std::enable_if_t&lt; std::is_signed_v&lt;T&gt;, T &gt;
+f( T a, T b ) ;
+
+template &lt; typename T &gt;
+std::enable_if_t&lt; std::is_unsigned_v&lt;T&gt;, T &gt;
+f( T a, T b ) ;
+</code></pre>
+</section>
+
+
+<section>
+<h1>わからへん</h1>
+</section>
+
+<section>
+<h1>解読には</h1>
+<h1>岡山の陶芸家</h1>
+<h1>が</h1>
+<h1>必要やろ</h1>
+</section>
+
+
+<section>
+<h2>コンセプトで解決</h2>
+
+<p>
+<ruby>釉薬<rt>ゆうやく</rt></ruby>は必要ないんやで
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool Signed = std::is_signed_v&lt;T&gt; ;
+
+template &lt; typename T &gt;
+concept bool Unsigned = std::is_unsigned_v&lt;T&gt; ;
+
+// オーバーロード解決で考慮される
+f( Signed a, Signed b ) ;
+f( Unsigned a, Unsigned b ) ;
+</code></pre>
+</section>
+
+<section>
+
+
+<h1>
+ホンマ
+</h1>
+
+<h1>
+わかりやすい
+</h1>
+</section>
+
+<section>
+<h1>これ以降</h1>
+<h1>笑うところは</h1>
+<h1>あらへんで</h1>
+</section>
+
+<section>
+<h2>ドワンゴ広告</h2>
+
+<p>
+この資料はドワンゴ勤務中に作成した
+</p>
+
+<p>
+この勉強会には会社の金で来た
+</p>
+
+</section>
+
+<section id="ad">
+<h1>ドワンゴは</h1>
+<h1>本物の</h1>
+<h1>プログラマーを</h1>
+<h1>募集中</h1>
+
+</section>
+
+<section>
+<h2>コンセプト</h2>
+
+<p>
+concept指定子を使って定義
+</p>
+
+<p>
+制約を記述する
+</p>
+
+<p>
+既存のテンプレートの一部をコンセプト化
+</p>
+
+<p>
+変数コンセプトと関数コンセプトがある
+</p>
+</section>
+
+<section>
+<h2>変数コンセプト</h2>
+
+<p>
+C++14の変数テンプレートをコンセプト化
+</p>
+
+<p>
+concept指定子つきの変数テンプレート
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool IntegerConcept = std::is_integer_v&lt;T&gt; ;
+</code></pre>
+</section>
+
+<section>
+<h2>変数コンセプトの条件</h2>
+
+<ul>
+<li>非制約テンプレート</li>
+<li>型はbool</li>
+<li>宣言には初期化子が必須</li>
+<li>初期化子は制約式</li>
+</ul>
+</section>
+
+<section>
+<h2>関数コンセプト</h2>
+
+<p>
+関数テンプレートをコンセプト化
+</p>
+
+<p>
+concept指定子つきで関数テンプレート
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool IntegerConcept( )
+{
+    return std::is_integer_v&lt;T&gt; ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>複数の関数コンセプト</h2>
+
+<p>
+テンプレート仮引数の違う関数コンセプトは複数書ける
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool f() { ... } 
+template &lt; typename T, typename U &gt;
+concept bool f() { ... } 
+template &lt; typename ... Types &gt;
+concept bool f() { ... } 
+
+</code></pre>
+</section>
+
+<section>
+<h2>関数コンセプトの条件</h2>
+
+<ul>
+<li>非制約テンプレート</li>
+<li>戻り値の型はbool</li>
+<li>仮引数なし</li>
+<li>宣言は定義</li>
+<li>再帰不可</li>
+<li>制約式のreturn文ひとつのみ</li>
+</ul>
+</section>
+
+<section>
+<h2>制約テンプレート</h2>
+
+<p>
+コンセプトを使うテンプレート仮引数
+</p>
+
+<pre><code class="cpp">template &lt; C c &gt; struct X { } ;
+</code></pre>
+</section>
+
+<section>
+<h2>制約式</h2>
+
+<p>
+&amp;&amp;か||が基本
+</p>
+
+<p>
+定数式
+</p>
+
+<p>
+型はbool
+</p>
+
+<p>
+論理演算子の左右オペランドの式の型もbool
+</p>
+<pre><code class="cpp">1 + 1 ; // 型はint、制約式ではない
+</code></pre>
+</section>
+
+<section>
+<h2>requires式</h2>
+
+<p>
+コンセプト定義の制約式の中だけで使える
+</p>
+
+<p>
+SFINAEのシンタックスシュガー
+</p>
+
+<p>
+様々な条件でsubstitutionを行える
+</p>
+
+<p>
+すべての要求を満たせばtrue
+</p>
+
+<p>
+満たさないならばfalse
+</p>
+</section>
+
+<section>
+<h2>実例</h2>
+
+
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool has_func()
+{
+    return requires( T t )
+    {
+        t.func() ; // substituion対象
+    } ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>requires式</h2>
+
+<p>
+ローカル実引数を導入できる。
+</p>
+
+<p>
+substitutionに使う便利な名前以外の意味はない。
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool has_func()
+{
+    return requires( T a, T b )
+    {
+        a + b ; // substitution対象
+    } ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>requires式</h2>
+
+<ul>
+<li>単純要求</li>
+<li>型要求</li>
+<li>複合要求</li>
+<li>ネスト要求</li>
+</ul>
+</section>
+
+<section>
+<h2>単純要求</h2>
+
+<p>
+式が妥当であることを要求
+</p>
+
+<p>
+妥当であればtrueを、そうでなけばfalseを返す
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool C()
+{
+    return requires( T t )
+    {
+        t + t ;
+        *t ;
+        t.func() ;
+        func(t) ;
+        t()()()()() ;
+    } ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>型要求</h2>
+<p>
+関連型が妥当であることを要求
+</p>
+
+<p>
+要求できる関連型
+</p>
+
+<ul>
+<li>ネストされた型名</li>
+<li>クラステンプレート特殊化</li>
+<li>テンプレートエイリアス</li>
+</ul>
+
+</section>
+
+<section>
+<h2>ネストされた型名</h2>
+
+<p>
+ネストされた型名が妥当であることを要求
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool C()
+{
+    return requires()
+    {
+        typename T::type ;
+        typename T::value_type ;
+        typename T::result_type ;
+    } ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>その他</h2>
+
+<p>
+妥当なクラステンプレート特殊化かエイリアステンプレートが存在するかどうか
+</p>
+
+<pre><code class="cpp">
+template &lt; typename T &gt;
+concept bool C = requires ( )
+{
+    Temp&lt;T&gt; ;
+} ;
+</code></pre>
+</section>
+
+<section>
+<h2>クラステンプレート特殊化</h2>
+
+<p>
+こういうものが存在すべき
+</p>
+
+<pre><code class="cpp">// Temp&lt;T&gt;のTはSomeConcept&lt;T&gt;を満たす
+template &lt; SomeConcept T &gt;
+struct Temp { } ;
+</code></pre>
+</section>
+
+<section>
+<h2>エイリアステンプレート</h2>
+
+<p>
+こういうものが存在すべき
+</p>
+
+<p>
+substitutionの結果、妥当な型であること
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+using Temp = T ;
+</code></pre>
+</section>
+
+<section>
+<h2>複合要求</h2>
+<p>
+様々な要求
+</p>
+
+<ul>
+<li>式</li>
+<li>式を評価した結果の型</li>
+<li>関連型</li>
+<li>無例外</li>
+<li>定数式</li>
+</ul>
+</section>
+
+<section>
+<h2>式</h2>
+
+<p>
+式が妥当であるかどうか
+</p>
+
+<p>
+単純要求と同じ
+</p>
+
+<pre><code class="cpp">requires( T t )
+{
+    { t + t } ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>式を評価した結果の型</h2>
+
+<p>
+要求した型になるかどうか
+</p>
+
+<pre><code class="cpp">requires( T t )
+{
+    { t.get_number() } -&gt; int ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>関連型</h2>
+
+<p>
+結果の型として
+</p>
+
+<p>
+型要求と同じ
+</p>
+
+<pre><code class="cpp">requires( T t )
+{
+    { *t } -&gt; T::value_type &amp; ;
+} 
+</code></pre>
+</section>
+
+
+<section>
+<h2>無例外</h2>
+
+<p>
+式が無例外かどうか
+</p>
+
+<pre><code class="cpp">
+requires ( T x, T y )
+{
+    { std::swap(x, y) } noexcept ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>定数式</h2>
+
+<p>
+式が定数式かどうか
+</p>
+
+<pre><code class="cpp">requires ( T t )
+{
+    constexpr { func(t) } ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>ネスト要求</h2>
+
+<p>
+requires clauseを書ける
+</p>
+
+<p>
+別のコンセプトを要求
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool C = true ;
+
+template &lt; typename T &gt;
+concept bool D()
+{
+    return requires ()
+    {
+        requires C&lt;T&gt; ;
+    } ;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>コンセプトの使い方</h2>
+
+<p>
+テンプレート仮引数として
+</p>
+
+<pre><code class="cpp">template &lt; C T &gt;
+void f( T x ) ;
+
+template &lt; C T &gt;
+struct S ;
+</code></pre>
+</section>
+
+<section>
+<h2>シンタックスシュガー</h2>
+
+<p>
+テンプレート宣言が必要ない
+</p>
+
+<pre><code class="cpp">void f( C x ) ;
+</code></pre>
+</section>
+
+<section>
+<h2>テンプレート仮引数はひとつ</h2>
+
+<p>
+別の型を取りたい場合には使えない
+</p>
+
+<pre><code class="cpp">void f( C a, C b ) ;
+
+// template &lt; C _C &gt;
+// void f( _C a, _C b ) ;
+</code></pre>
+
+
+</section>
+
+<section>
+<h2>requires clause</h2>
+
+<p>
+関数テンプレートにのみ指定可能
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool C = true ;
+
+template &lt; typename T &gt;
+void f()
+requires C&lt;T&gt;
+{ }
+</code></pre>
+</section>
+
+<section>
+<h2>新しいテンプレート宣言</h2>
+
+<p>
+テンプレートの簡易的な記述
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+concept bool C = true ;
+
+C{T} void f() ;
+
+// template &lt; typename T &gt;
+// void f()
+// requires C&lt;T&gt; ;
+</code></pre>
+</section>
+
+<section>
+<h2>新しいテンプレート宣言</h2>
+
+<p>
+複数のテンプレート仮引数
+</p>
+
+<pre><code class="cpp">template &lt; typename A, typename B, typename ... C &gt;
+concept bool C = true ;
+
+C{ A, B, C }
+void f() ;
+
+// tempalte &lt; typename A, typename B, typename ... C &gt;
+// void f()
+// requires C&lt;A, B, C...&gt; ;
+</code></pre>
+</section>
+
+<section>
+<h2>subsume</h2>
+
+<p>
+atomic constraint単位の包括関係
+</p>
+
+<pre><code class="cpp">
+template &lt; typename T &gt; concept bool A = std::is_fundamental_v&lt;T&gt; ;
+template &lt; typename T &gt; concept bool B = A&lt;T&gt; &amp;&amp; std::is_integer_v&lt;T&gt; ;
+template &lt; typename T &gt; concept bool C = B&lt;T&gt; &amp;&amp; std::is_same_v&lt;T, int&gt; ;
+
+void f( A ) ;
+void f( B ) ;
+void f( C ) ;
+
+f( 0.0 ) ; // A
+f( 0L ) ; // B
+f( 0 ) ; // C
+</code></pre>
+</section>
+
+
+</div>
+
+</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'none', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
