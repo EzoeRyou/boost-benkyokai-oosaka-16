@@ -1044,7 +1044,12 @@ struct S ;
 テンプレート宣言が必要ない
 </p>
 
-<pre><code class="cpp">void f( C x ) ;
+<pre><code class="cpp">template &lt; typename T &gt; concept bool C = true ;
+
+void f( C x ) ;
+
+// template &lt; C _C &gt;
+void f( _C x ) ;
 </code></pre>
 </section>
 
