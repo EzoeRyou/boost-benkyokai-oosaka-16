@@ -1150,6 +1150,124 @@ f( 0 ) ; // C, int
 </code></pre>
 </section>
 
+<section id="omake">
+<h1>
+おまけ
+</h1>
+</section>
+
+
+<section>
+<h2>エイリアス宣言</h2>
+
+<p>
+C++11の機能
+</p>
+
+<p>
+typedef名を宣言する新しい文法
+</p>
+
+<pre><code class="cpp">// typedef int type ;
+using type = int ;
+</code></pre>
+</section>
+
+<section>
+<h2>テンプレートエイリアス</h2>
+
+<p>
+エイリアス宣言のテンプレート化
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+using type = T ;
+
+type&lt;int&gt; t1 ; // int
+type&lt;double&gt; t2 ; // double
+</code></pre>
+</section>
+
+<section>
+<h2>::typeのラッパー</h2>
+
+<p>
+型を返すtraitsのラッパーライブラリ
+</p>
+
+<p>
+::typeがいらなくなる
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+using add_pointer_t = typename std::add_pointer&lt;T&gt;::type ;
+
+// add_pointer&lt;int&gt;::type
+add_pointer_t&lt;int&gt; p ; // int *
+</code></pre>
+</section>
+
+<section>
+<h2>変数宣言</h2>
+
+<p>
+C++98の機能
+</p>
+
+<p>
+変数を宣言する新しい文法
+</p>
+
+<pre><code class="cpp">int pi_i = 3 ;
+double pi_d =  3.1415926535  ;
+
+pi_i ;
+pi_d ;
+</code></pre>
+</section>
+
+<section>
+<h2>変数テンプレート</h2>
+
+<p>
+C++14の機能
+</p>
+<p>
+変数宣言をテンプレート化する文法
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+T pi = static_cast&lt;T&gt;( 3.1415926535 ) ;
+
+x&lt;int&gt; ;
+x&lt;double&gt; ;
+</code></pre>
+</section>
+
+<section>
+<h2>
+::valueのラッパー
+</h2>
+
+<p>
+値を返すtraitsを変数テンプレートでラップしたライブラリ
+</p>
+
+<p>
+::valueがいらなくなる
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+constexpr bool is_pointer_v = std::is_pointer&lt;T&gt;::value ;
+
+template &lt; typename T &gt;
+void f()
+{
+    // is_pointer&lt;T&gt;::value
+    constexpr bool b = is_pointer_v&lt;T&gt; ;
+}
+</code></pre>
+</section>
 
 </div>
 
