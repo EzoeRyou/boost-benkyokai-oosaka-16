@@ -162,10 +162,11 @@ concept_map pointer_like&lt;T *&gt;
 <pre><code class="cpp">// 既存の別のコーディングスタイルの型をマッピング
 struct Hoge_ptr
 {
-    typedef int type ;
-    type &amp; get() ;
+    typedef int type ; // value_typeではない
+    type &amp; get() ; // operator *ではない
 } ;
 
+// マッピング
 concept_map pointer_like&lt; Hoge_ptr &gt;
 {
     typedef Hoge_ptr::type value_type ;
