@@ -222,7 +222,7 @@ struct X { using value_type = int ; } ;
 
 template &lt; has_value_type T &gt; struct Y { } ;
 
-X&lt;T&gt; x ; // エラー
+Y&lt;X&gt; obj ; // エラー
 </code></pre>
 </section>
 
